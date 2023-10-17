@@ -27,6 +27,7 @@ public enum ThreadMode {
      * implies the least overhead because it avoids thread switching completely. Thus, this is the recommended mode for
      * simple tasks that are known to complete in a very short time without requiring the main thread. Event handlers
      * using this mode must return quickly to avoid blocking the posting thread, which may be the main thread.
+     * 默认的线程模式，在哪个线程发送事件就在对应的线程处理事件
      */
     POSTING,
 
@@ -36,6 +37,7 @@ public enum ThreadMode {
      * is queued for delivery (non-blocking). Subscribers using this mode must return quickly to avoid blocking the main thread.
      * <p>
      * If not on Android, behaves the same as {@link #POSTING}.
+     * 如果是在主线程发送事件，直接在主线程处理事件。反之，如果在子线程中发送事件，则需要切换到主线程来处理事件。(在Android中使用比较多)
      */
     MAIN,
 
@@ -44,6 +46,7 @@ public enum ThreadMode {
      * the event will always be queued for delivery. This ensures that the post call is non-blocking.
      * <p>
      * If not on Android, behaves the same as {@link #POSTING}.
+     * 不管在哪个线程发送事件，都会将事件入队列，在主线程上有序执行。
      */
     MAIN_ORDERED,
 
@@ -54,6 +57,7 @@ public enum ThreadMode {
      * return quickly to avoid blocking the background thread.
      * <p>
      * If not on Android, always uses a background thread.
+     * 如果是在子线程中发送事件，则直接在该子线程中处理事件。反之，如果是在主线程中发送事件，则需要将该事件入消息队列，切换到子线程，用线程池来有序处理该事件。（如果不是Android中使用，总是使用该模式）
      */
     BACKGROUND,
 
@@ -63,6 +67,7 @@ public enum ThreadMode {
      * use this mode if their execution might take some time, e.g. for network access. Avoid triggering a large number
      * of long-running asynchronous subscriber methods at the same time to limit the number of concurrent threads. EventBus
      * uses a thread pool to efficiently reuse threads from completed asynchronous subscriber notifications.
+     * 无论是在哪个线程发送事件，都会将该事件入消息队列，通过线程池在子线程上处理事件。如果订阅者方法的执行可能需要一些时间(如网络访问)，则应使用此模式。
      */
     ASYNC
 }
